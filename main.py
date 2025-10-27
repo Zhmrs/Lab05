@@ -37,6 +37,47 @@ def main(page: ft.Page):
 
     # Tutti i TextField per le info necessarie per aggiungere una nuova automobile (marca, modello, anno, contatore posti)
     # TODO
+    marca=ft.TextField(label="Marca")
+    modello=ft.TextField(label="Modello")
+    anno=ft.TextField(label="Anno")
+
+    textOut = ft.TextField(width=100,
+                           text_size=24,
+                           disabled=True,  # DISABILITARE LA CASELLA DI TESTO (IMMODIFICABILE)
+                           text_align=ft.TextAlign.CENTER)
+
+    # INSERISCO IL VALROE INIZIALE
+    textOut.value = 2
+
+    # funzioni che aumentano e diminuiscono i valori
+    def haldlerMinus(e):
+        currentVal = textOut.value
+        if currentVal > 0:  # se è maggiore di zero posso decrementare, senza andare sotto lo zero
+            currentVal = currentVal - 1
+            textOut.value = currentVal  # reimposto e collegare con il bottone
+            textOut.update()  # AGGIORNO SOLO IL TESTO
+
+    def haldlerPlus(e):
+        currentVal = textOut.value
+        currentVal = currentVal + 1
+        textOut.value = currentVal  # reimposto e collegare con il bottone
+        textOut.update()
+
+    # AGGIUNGO DUE BOTTONI (icona)
+    btnMinus = ft.IconButton(icon=ft.Icons.REMOVE_CIRCLE_ROUNDED,
+                             icon_size=24,
+                             icon_color='red',
+                             on_click=haldlerMinus)
+    btnPlus = ft.IconButton(icon=ft.Icons.ADD_CIRCLE_ROUNDED,
+                            icon_size=24,
+                            icon_color='green',
+                            on_click=haldlerPlus)
+
+    contatore= ft.Row([btnMinus, textOut, btnPlus],
+                 alignment=ft.MainAxisAlignment.CENTER)
+
+    # ALLINEO IN UNA RIGA I CONTROLLI PER INSERIRE MARCA, MODELLO E ANNO
+    row1=ft.Row([marca,modello,anno,contatore], alignment=ft.MainAxisAlignment.CENTER)
 
     # --- FUNZIONI APP ---
     def aggiorna_lista_auto():
@@ -59,6 +100,33 @@ def main(page: ft.Page):
 
     # Handlers per la gestione dei bottoni utili all'inserimento di una nuova auto
     # TODO
+    def aggiungi_automobile(e):
+        marca_val = marca.value.strip()
+        modello_val = modello.value.strip()
+        anno_val = anno.value.strip()
+        posti_val = textOut.value
+
+        # Se l'anno inserito non è un numero
+        if not anno_val.isdigit():
+            alert.show_alert(f"❌ Errore:inserisci valori numerici validi per anno e posti")
+
+
+        # Aggiunta alla struttura dati controllando che tutti i campi siano compilati
+        if not marca_val or not modello_val or not anno_val:
+            alert.show_alert("⚠️ Tutti i campi devono essere compilati.")
+        else:
+            autonoleggio.aggiungi_automobile(marca_val, modello_val, anno_val, posti_val)
+
+        # Pulizia dei campi
+        marca.value = ""
+        modello.value = ""
+        anno.value = ""
+        textOut.value = 2
+        page.update()
+
+        # Aggiornamento della lista
+        aggiorna_lista_auto()
+
 
     # --- EVENTI ---
     toggle_cambia_tema = ft.Switch(label="Tema scuro", value=True, on_change=cambia_tema)
@@ -66,7 +134,7 @@ def main(page: ft.Page):
 
     # Bottoni per la gestione dell'inserimento di una nuova auto
     # TODO
-
+    btn_aggiungi_automobile=ft.ElevatedButton('Aggiungi automobile',on_click=aggiungi_automobile)
     # --- LAYOUT ---
     page.add(
         toggle_cambia_tema,
@@ -84,7 +152,9 @@ def main(page: ft.Page):
 
         # Sezione 3
         # TODO
-
+        ft.Text('Aggiungi Nuova Automobile',size=20),
+        row1,
+        btn_aggiungi_automobile,
         # Sezione 4
         ft.Divider(),
         ft.Text("Automobili", size=20),
